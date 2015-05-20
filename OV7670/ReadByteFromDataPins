@@ -1,0 +1,46 @@
+
+const int dataPin[] = {A0,A1,A2,A3,4,5,6,7};  //data lines : pixel output of camera (input to arduino)
+const int xclkPin = 11;  //system clock input of camera (output of arduino)
+const int pclkPin = 2;   //pixel clock output of camera (input to arduino)
+const int hrefPin = 8;   //horizontal reference : high during active pixels of row
+const int vsyncPin = 3;  //vertical sync : low during frame
+const int siocPin = A5;
+const int siodPin = A4;
+int prevPCLK, currPCLK;
+
+void setup() {
+  for(int i=0;i<8;i++)  {
+    pinMode(dataPin[i], INPUT);
+  }
+  pinMode(xclkPin, OUTPUT);
+  pinMode(pclkPin, INPUT);
+  pinMode(hrefPin, INPUT);
+  pinMode(vsyncPin, INPUT);
+  
+  prevPCLK = digitalRead(pclkPin);
+}
+
+void loop() {
+   analogWrite(xclkPin, 128);
+   if(digitalRead(vsyncPin) == HIGH)  {
+     Serial.println("End of frame");
+     return;
+   }
+   if(digitalRead(hrefPin) == LOW)  {
+     Serial.println();
+     //return;
+   }
+   currPCLK = digitalRead(pclkPin);
+   if(prevPCLK == LOW && currPCLK == HIGH)  {
+     byte currentByte = readFromDataPins();
+     Serial.println(currentByte);
+   }
+}
+
+byte readFromDataPins()  {
+  byte result = 0;
+  for (int i = 0; i < 8; i++) {
+    result = result << 1 | digitalRead(dataPin[i]);
+  }
+  return result;
+}
