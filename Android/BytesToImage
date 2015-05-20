@@ -1,0 +1,27 @@
+
+/**
+ * Converts input byte array to a JPEG image and saves it
+ * 
+ * @author (your name) 
+ * @version (a version number or a date)
+ */
+
+import java.io.*;
+import android.graphics.*;
+public class BytesToImage
+{
+    byte incomingByteArray[] = {};
+    static int ctr = 1;
+
+    void convertAndSave()
+    {
+        Bitmap bitmapimage = BitmapFactory.decodeByteArray(incomingByteArray, 0, incomingByteArray.length);
+        String filepath = "/image"+ctr+".jpeg";
+        ctr++;  
+        File imagefile = new File(filepath);
+        FileOutputStream fout = new FileOutputStream(imagefile); 
+        bitmapimage.compress(CompressFormat.JPEG, 100, fout);
+        fout.flush();
+        fout.close();
+    }
+}
