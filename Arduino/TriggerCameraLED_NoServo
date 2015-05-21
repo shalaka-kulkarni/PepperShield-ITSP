@@ -1,0 +1,70 @@
+
+const int dataPin[] = {A0,A1,A2,A3,4,5,6,7};  //data lines : pixel output of camera (input to arduino)
+const int xclkPin = 11;  //system clock input of camera (output of arduino)
+const int pclkPin = 2;   //pixel clock output of camera (input to arduino)
+const int hrefPin = 8;   //horizontal reference : high during active pixels of row
+const int vsyncPin = 3;  //vertical sync : low during frame
+const int siocPin = A5;
+const int siodPin = A4;
+
+const int rx = 0; //Receives from BT
+const int tx = 1; //Transmits to BT
+
+const int triggerPin = 12;
+
+const int ledPin = 13;
+
+int prevPCLK, currPCLK;
+
+void setup() {
+  for(int i=0;i<8;i++)  {
+    pinMode(dataPin[i], INPUT);
+  }
+  pinMode(xclkPin, OUTPUT);
+  pinMode(pclkPin, INPUT);
+  pinMode(hrefPin, INPUT);
+  pinMode(vsyncPin, INPUT);
+  pinMode(triggerPin, INPUT);
+  pinMode(ledPin, OUTPUT);
+  
+  prevPCLK = digitalRead(pclkPin);
+  analogWrite(xclkPin, 128);
+   
+}
+
+void loop() {
+  
+  int trigger = digitalRead(triggerPin);
+  if(trigger == HIGH)  {
+    
+   byte flagByte = 0x03; 
+   Serial.write(flagByte);
+    //Take snapshot
+   while(digitalRead(vsyncPin) == LOW)  {
+     
+    digitalWrite(ledPin, HIGH); 
+    while(digitalRead(hrefPin == HIGH)  {
+     currPCLK = digitalRead(pclkPin);
+     if(prevPCLK == LOW && currPCLK == HIGH)  {
+       byte currentByte = readFromDataPins();
+       Serial.write(currentByte);
+       Serial.println(currentByte);
+     }
+    }
+    Serial.println();
+  }
+  digitalWrite(ledPin, LOW);
+  if(Serial.read() == flagByte)
+    Serial.println("Bluetooth transfer successful!");
+  else
+    Serial.println("Bluetooth transfer failed.");
+ }
+}
+  
+byte readFromDataPins()  {
+  byte result = 0;
+  for (int i = 0; i < 8; i++) {
+    result = result << 1 | digitalRead(dataPin[i]);
+  }
+  return result;
+}
