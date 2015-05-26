@@ -35,7 +35,7 @@ void setup() {
 void loop() {
   
   int trigger = digitalRead(triggerPin);
-  if(trigger == HIGH)  {
+  if(trigger == LOW)  {
     
    byte flagByte = 0x03; 
    Serial.write(flagByte);
