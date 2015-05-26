@@ -47,4 +47,19 @@ public class WelcomeScreen extends ActionBarActivity {
         Intent intent = new Intent(this, EmergencyContacts.class);
         startActivity(intent);
     }
+    
+    public void enableStandby(Button view) {
+
+        Context context = getApplicationContext();
+        CharSequence text = "Standby enabled for emergencies";
+        int duration = Toast.LENGTH_SHORT;
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+
+        Button btn = (Button) findViewById(R.id.buttonStandby);
+        btn.setEnabled(false);
+
+        Intent intent = new Intent(this, StandbyIntentService.class);
+        startService(intent);
+    }
 }
