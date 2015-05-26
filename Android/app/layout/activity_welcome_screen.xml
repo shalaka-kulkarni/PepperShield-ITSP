@@ -48,6 +48,22 @@
         android:layout_below="@+id/buttonHistory"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="34dp" />
+        
+    <Button
+        android:id="@+id/buttonStandby"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enable Standby"
+        android:textSize="20sp"
+        android:textColor="#850001"
+        android:padding="10sp"
+        android:background="#FFEEEE"
+        android:onClick="enableStandby"
+        android:layout_below="@+id/textView"
+        android:layout_alignLeft="@+id/buttonHistory"
+        android:layout_alignStart="@+id/buttonHistory"
+        android:layout_alignRight="@+id/buttonHistory"
+        android:layout_alignEnd="@+id/buttonHistory" />
 
 
 </RelativeLayout>
