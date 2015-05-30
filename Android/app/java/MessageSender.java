@@ -1,14 +1,14 @@
-package com.mycompany.peppershield;
+package com.mycompany.debugtrial2;
 
 import android.telephony.SmsManager;
 
 /**
- * Created by Admin on 5/25/2015.
+ * Created by Shalaka on 5/25/2015.
  */
 public class MessageSender {
 
-    String emergency[][] = {{"Police Helpline", "7738144144"}, {"Police Helpline", "7738133133"}, {"Women's Helpline", "9969777888"}};
-    String message = "HELP! I am in trouble. ";
+    String emergency[][] = {/*{"Aai", "+91 9619745270"},*/ {"Shalaka", "+91 7506438504"}};
+    String message = "Testing PepperShield app";
 
     void sendSMS() {
         SmsManager smsMgr = SmsManager.getDefault();
@@ -21,3 +21,4 @@ public class MessageSender {
 
 
 }
+
