@@ -1,4 +1,4 @@
-package com.mycompany.peppershield;
+package com.mycompany.debugtrial2;
 
 import android.bluetooth.*;
 import android.graphics.*;
@@ -6,12 +6,13 @@ import android.graphics.*;
 import java.io.*;
 
 /**
- * Created by Admin on 5/25/2015.
+ * Created by Shalaka on 5/25/2015.
  */
 public class BluetoothReceiver extends Thread {
 
     BluetoothSocket socket;
     InputStream in;
+    byte incomingArray[];
 
     static int ctr = 1;
 
@@ -23,22 +24,21 @@ public class BluetoothReceiver extends Thread {
         } catch (IOException e) { }
     }
 
-    byte[] read() {
+    int read() {
 
         int size=640*480*2 + 2; //640x480 pix screen resolution, with 1 pixel compressed to 2 bytes
-        byte[] arr = new byte[size];
+        incomingArray = new byte[size];
+        int noOfBytes = 0;
         try {
-            int noOfBytes = in.read(arr);
+            noOfBytes = in.read(incomingArray);
         } catch (IOException e) { }
 
-        return arr;
+        return noOfBytes;
     }
 
     void getImage() {
 
-        byte[] incomingByteArray = read();
-
-        Bitmap bitmapimage = BitmapFactory.decodeByteArray(incomingByteArray, 0, incomingByteArray.length);
+        Bitmap bitmapimage = BitmapFactory.decodeByteArray(incomingArray, 0, incomingArray.length);
         String filepath = "/image"+ctr+".jpeg";
         ctr++;
 
@@ -49,5 +49,6 @@ public class BluetoothReceiver extends Thread {
             fout.flush();
             fout.close();
         } catch (IOException e) { }
+
     }
 }
