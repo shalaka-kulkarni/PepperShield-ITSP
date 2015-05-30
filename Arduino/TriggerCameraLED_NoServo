@@ -1,4 +1,3 @@
-#include <Servo.h>
 
 const int dataPin[] = {A0,A1,A2,A3,4,5,6,7};  //data lines : pixel output of camera (input to arduino)
 const int xclkPin = 11;  //system clock input of camera (output of arduino)
@@ -7,7 +6,7 @@ const int hrefPin = 8;   //horizontal reference : high during active pixels of r
 const int vsyncPin = 3;  //vertical sync : low during frame
 const int siocPin = A5;
 const int siodPin = A4;
-const int servo_pin = 9;
+
 const int rx = 0; //Receives from BT
 const int tx = 1; //Transmits to BT
 
@@ -15,17 +14,10 @@ const int triggerPin = 12;
 
 const int ledPin = 13;
 
-//Servo Settings
-const int max_angle = 180;
-const int min_angle = 0;
-const int default_angle = 90;
-const int pressed_angle = 150;
-const int spray_time = 500
-Servo myservo;
-
 int prevPCLK, currPCLK;
 
 void setup() {
+  Serial.begin(9600);
   for(int i=0;i<8;i++)  {
     pinMode(dataPin[i], INPUT);
   }
@@ -38,64 +30,32 @@ void setup() {
   
   prevPCLK = digitalRead(pclkPin);
   analogWrite(xclkPin, 128);
-  //Initiate Servo
-    myservo.attach(servo_pin);
+   
 }
 
 void loop() {
   
-  int trigger = digitalRead(triggerPin);
-  if(trigger == HIGH)  
-  {
-    //Check if the Servo Pin is attached
-    if(myservo.attached())
-    {
-      //Check if the angle is in the range
-      if(myservo.read()>max_angle || myservo.read() < min_angle)
-      {
-        //Angle is not in the range
-        myservo.write(default_angle);
-      }
-      else
-      {
-        myservo.write(pressed_angle);
-        delay(spray_time);
-      }
+   while(digitalRead(vsyncPin) == LOW)  {
+     
+    digitalWrite(ledPin, HIGH); 
+    while(digitalRead(hrefPin == HIGH))  {
+      
+     currPCLK = digitalRead(pclkPin);
+     if(prevPCLK == LOW && currPCLK == HIGH)  {
+       
+       byte lower = PINC;
+       byte upper = PIND;
+       lower = lower & 0b001111;
+       upper = upper & 0b11110000;
+       
+       byte currentByte = upper | lower;
+       
+       
+       Serial.write(currentByte);
+       Serial.println(currentByte);
+     }
     }
-     byte flagByte = 0x03; 
-    Serial.write(flagByte);
-    //Take snapshot
-    while(digitalRead(vsyncPin) == LOW)  
-    {
-      digitalWrite(ledPin, HIGH); 
-      while(digitalRead(hrefPin == HIGH)  
-      {
-        currPCLK = digitalRead(pclkPin);
-        if(prevPCLK == LOW && currPCLK == HIGH)  
-        {
-          byte currentByte = readFromDataPins();
-          Serial.write(currentByte);
-          Serial.println(currentByte);
-        }
-      }
-      Serial.println();
-    }
-    digitalWrite(ledPin, LOW);
-    if(Serial.read() == flagByte)
-      Serial.println("Bluetooth transfer successful!");
-    else
-      Serial.println("Bluetooth transfer failed.");
   }
-  else
-  {
-    myservo.write(default_angle);
-  }
-}
-  
-byte readFromDataPins()  {
-  byte result = 0;
-  for (int i = 0; i < 8; i++) {
-    result = result << 1 | digitalRead(dataPin[i]);
-  }
-  return result;
+  digitalWrite(ledPin, LOW);
+
 }
