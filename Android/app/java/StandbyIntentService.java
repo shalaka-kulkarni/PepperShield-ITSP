@@ -1,26 +1,34 @@
-package com.mycompany.peppershield;
+package com.mycompany.debugtrial2;
 
 import android.app.IntentService;
-import android.content.Intent;
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
+import android.widget.Toast;
 
+
+/**
+ * Created by Shalaka on 5/25/2015.
+ */
 public class StandbyIntentService extends IntentService {
 
-    public StandbyIntentService(String name) {
-        super(name);
+    public StandbyIntentService() {
+        super("StandbyIntentService");
     }
 
     @Override
-    protected void onHandleIntent(Intent workIntent) {
+    protected void onHandleIntent(Intent intent) {
 
+        Log.d("StandbyIntentService","Intent fired");
         Bluetooth bt = new Bluetooth();
-        boolean receivedImage = bt.runBT();
-        if(receivedImage) {
-            buildGoogleApiClient();
+        bt.connectAsClient();
+        boolean trigger = bt.run();
 
-            (new MessageSender()).sendSMS();
+        if(trigger) {
+            MessageSender sms = new MessageSender();
+            sms.sendSMS();
+            Log.d("StandbyIntentService","Message sent");
         }
+
     }
-
-
 }
