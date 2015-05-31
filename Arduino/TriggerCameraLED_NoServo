@@ -6,6 +6,7 @@ const int hrefPin = 8;   //horizontal reference : high during active pixels of r
 const int vsyncPin = 3;  //vertical sync : low during frame
 const int siocPin = A5;
 const int siodPin = A4;
+const int servo_pin = 9;
 
 const int rx = 0; //Receives from BT
 const int tx = 1; //Transmits to BT
@@ -13,6 +14,14 @@ const int tx = 1; //Transmits to BT
 const int triggerPin = 12;
 
 const int ledPin = 13;
+
+//Servo Data
+const int max_angle = 180;
+const int min_angle = 0;
+const int default_angle = 90;
+const int pressed_angle = 150;
+const int spray_time = 500;
+Servo myservo;
 
 int prevPCLK, currPCLK;
 
@@ -30,7 +39,9 @@ void setup() {
   
   prevPCLK = digitalRead(pclkPin);
   analogWrite(xclkPin, 128);
-   
+  
+  myservo.attach(servo_pin);
+ 
 }
 
 void loop() {
@@ -55,6 +66,7 @@ void loop() {
        Serial.println(currentByte);
      }
     }
+    
   }
   digitalWrite(ledPin, LOW);
 
