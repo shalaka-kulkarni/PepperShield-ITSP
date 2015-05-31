@@ -66,8 +66,21 @@ void loop() {
        Serial.println(currentByte);
      }
     }
-    
-  }
+    //Servo Code
+    if(myservo.attached())
+    {
+      if(myservo.read()>max_angle || myservo.read() < min_angle)
+      {
+        myservo.write(default_angle);
+        //!Trigger Pin
+      }
+      else
+      {
+        myservo.write(pressed_angle);
+        delay(spray_time);
+      }
+    }
   digitalWrite(ledPin, LOW);
+  myservo.write(default_angle);
 
 }
