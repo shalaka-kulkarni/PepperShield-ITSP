@@ -19,11 +19,6 @@ public class Bluetooth {
 
     public Bluetooth() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        /*if (!mBluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            int REQUEST_ENABLE_BT=1;
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }*/
     }
 
     void connectAsServer() {
