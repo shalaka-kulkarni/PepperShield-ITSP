@@ -48,8 +48,20 @@ public class WelcomeScreen extends ActionBarActivity {
         startActivity(intent);
     }
     
-    public void enableStandby(Button view) {
+    public void enableStandby(View view) {
 
+        if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            int REQUEST_ENABLE_BT = 1;
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
+        else {
+            enable();
+        }
+
+    }
+
+    void enable() {
         Context context = getApplicationContext();
         CharSequence text = "Standby enabled for emergencies";
         int duration = Toast.LENGTH_SHORT;
@@ -62,4 +74,12 @@ public class WelcomeScreen extends ActionBarActivity {
         Intent intent = new Intent(this, StandbyIntentService.class);
         startService(intent);
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == 1 && resultCode == RESULT_OK) {
+            enable();
+        }
+    }
+
 }
