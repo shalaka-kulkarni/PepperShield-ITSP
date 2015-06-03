@@ -49,7 +49,17 @@ public class Bluetooth {
 
     void connectAsClient() {
 
-        mDevice = mBluetoothAdapter.getRemoteDevice("98:D3:31:80:3D:3B");
+        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+
+        if (pairedDevices.size() > 0) {
+
+            for (BluetoothDevice device : pairedDevices) {
+                if(device.getName().equals("HC-05")) {
+                    mDevice = device;
+                }
+            }
+        }
+
         UUID mDeviceUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
         try {
             socket = mDevice.createRfcommSocketToServiceRecord(mDeviceUUID);
@@ -60,6 +70,8 @@ public class Bluetooth {
         }
 
         try {
+            if(mBluetoothAdapter.isDiscovering())
+                mBluetoothAdapter.cancelDiscovery();
             socket.connect();
             Log.d("Bluetooth","Bluetooth connection successful!");
         } catch (IOException connectException) {
