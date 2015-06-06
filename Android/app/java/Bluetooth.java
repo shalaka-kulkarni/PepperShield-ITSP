@@ -10,7 +10,7 @@ import java.util.*;
 /**
  * Created by Shalaka on 5/25/2015.
  */
-public class Bluetooth {
+public class Bluetooth implements Runnable {
 
     BluetoothAdapter mBluetoothAdapter;
     BluetoothServerSocket mServerSocket;
@@ -44,6 +44,8 @@ public class Bluetooth {
 
     void connectAsClient() {
 
+        //mDevice = mBluetoothAdapter.getRemoteDevice("98:D3:31:80:3D:3B");
+
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
 
         if (pairedDevices.size() > 0) {
@@ -68,7 +70,7 @@ public class Bluetooth {
             if(mBluetoothAdapter.isDiscovering())
                 mBluetoothAdapter.cancelDiscovery();
             socket.connect();
-            Log.d("Bluetooth","Bluetooth connection successful!");
+            Log.d("Bluetooth", "Bluetooth connection successful!");
         } catch (IOException connectException) {
             // Unable to connect; close the socket and get out
             try {
@@ -82,7 +84,7 @@ public class Bluetooth {
 
     }
 
-    boolean run() {
+    boolean runBT() {
 
         int noOfBytes = 0;
 
@@ -96,6 +98,21 @@ public class Bluetooth {
             return true;
         else
             return false;
+    }
+
+    @Override
+    public void run() {
+        // Moves the current Thread into the background
+        android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+      //  while(true) {
+            connectAsClient();
+            boolean trigger = runBT();
+            if(trigger) {
+                MessageSender sms = new MessageSender();
+                sms.sendSMS();
+                Log.d("StandbyService", "Message sent");
+            }
+      //  }
     }
 
 }
