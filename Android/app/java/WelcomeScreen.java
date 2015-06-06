@@ -1,12 +1,20 @@
-package com.mycompany.peppershield;
+package com.mycompany.debugtrial2;
 
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.Application;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.content.Intent;
+import android.widget.Toast;
 
+import java.util.List;
 
 public class WelcomeScreen extends ActionBarActivity {
 
@@ -14,6 +22,10 @@ public class WelcomeScreen extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome_screen);
+        if(isServiceRunning(StandbyService.class)) {
+            Button btn = (Button) findViewById(R.id.buttonStandby);
+            btn.setEnabled(false);
+        }
     }
 
     @Override
@@ -38,16 +50,17 @@ public class WelcomeScreen extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void openUsageHistory(Button view) {
+    public void openUsageHistory(View view) {
         Intent intent = new Intent(this, UsageHistory.class);
         startActivity(intent);
     }
 
-    public void openEmergencyContacts(Button view) {
+
+    public void openEmergencyContacts(View view) {
         Intent intent = new Intent(this, EmergencyContacts.class);
         startActivity(intent);
     }
-    
+
     public void enableStandby(View view) {
 
         if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
@@ -71,7 +84,7 @@ public class WelcomeScreen extends ActionBarActivity {
         Button btn = (Button) findViewById(R.id.buttonStandby);
         btn.setEnabled(false);
 
-        Intent intent = new Intent(this, StandbyIntentService.class);
+        Intent intent = new Intent(this, StandbyService.class);
         startService(intent);
     }
 
@@ -82,4 +95,13 @@ public class WelcomeScreen extends ActionBarActivity {
         }
     }
 
+    public boolean isServiceRunning(Class serviceClass){
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
