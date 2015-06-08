@@ -109,7 +109,7 @@ public class Bluetooth implements Runnable {
         boolean trigger = runBT();
         if(trigger) {
             MessageSender sms = new MessageSender();
-           // sms.sendSMS();
+            sms.sendSMS();
             Log.d("Bluetooth", "Message sent");
         }
 
