@@ -1,0 +1,8 @@
+Add these
+
+
+
+<string name="service_not_available">Service not Available</string>
+    <string name="invalid_lat_long_used">Invalid Lat Long Used</string>
+    <string name="no_address_found">No address Found</string>
+    <string name="address_found">Address Found</string>
