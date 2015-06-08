@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -63,25 +64,13 @@ public class EmergencyContacts extends Activity {
 
         contactsAdapter = new CustomAdapter_emergency_contacts();
         listView = (ListView) findViewById(R.id.ListView);
-        Person defaultNumber;
-        defaultNumber=new Person("Women's Helpline Number ","09969777888");
-        EmergencyContactsName.add(defaultNumber);
+
 
 
         Button delete=(Button)findViewById(R.id.delete);
         listView.setAdapter(contactsAdapter);
 
-        SharedPreferences sharedPref = getSharedPreferences("EmergencyContacts", Context.MODE_PRIVATE);
-        String List = sharedPref.getString("List", "");
-        if (!"".equals(List) && "" != List) {
-            contactsAdapter.clear();
-            String[] str = List.split(";");
-            for (String item : str) {
-                String[] name_and_num = item.split(",");
-                if (!name_and_num[0].equals(null))
-                    contactsAdapter.add(new Person(name_and_num[0], name_and_num[1]));
-            }
-        }
+        updateList();
 
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,16 +89,16 @@ public class EmergencyContacts extends Activity {
                     }
                     else
                     {
-                    if (tx.isChecked())
-                    {
                         if (tx.isChecked())
                         {
-                            contactsAdapter.remove(contactsAdapter.getItem(i));
+                            if (tx.isChecked())
+                            {
+                                contactsAdapter.remove(contactsAdapter.getItem(i));
+                            }
                         }
-                    }
 
 
-                }}
+                    }}
 
                 contactsAdapter.notifyDataSetChanged();
                 for (int i=0;i<listView.getCount();i++)
@@ -136,7 +125,7 @@ public class EmergencyContacts extends Activity {
             ViewHolder holder;
             if (convertView == null) {
                 LayoutInflater inflater = getLayoutInflater();
-                convertView = inflater.inflate(R.layout.custom_rom_emergency_contacts, null);
+                convertView = inflater.inflate(R.layout.custom_row_emergency_contacts, null);
                 holder = new ViewHolder(convertView);
                 convertView.setTag(holder);
 
@@ -186,14 +175,14 @@ public class EmergencyContacts extends Activity {
     public void doLaunchContactPicker(View view)
     {
 
-    if (EmergencyContactsName.size()<=6)
+        if (EmergencyContactsName.size()<=6)
         {
 
             Intent contactPickerIntent = new Intent(Intent.ACTION_PICK,
                     ContactsContract.Contacts.CONTENT_URI);
             startActivityForResult(contactPickerIntent, CONTACT_PICKER_RESULT);
         }
-    else
+        else
         {
             Toast.makeText(EmergencyContacts.this,"Maximum contacts are 7",Toast.LENGTH_SHORT).show();
         }
@@ -231,6 +220,7 @@ public class EmergencyContacts extends Activity {
                                 toBeAdded.phoneNumber = phoneNumber;
                                 toBeAdded.name = name;
                                 EmergencyContactsName.add(toBeAdded);
+                                Person p=EmergencyContactsName.get(0);
 
                                 contactsAdapter.notifyDataSetChanged();
                             }
@@ -248,11 +238,28 @@ public class EmergencyContacts extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        SharedPreferences sharedPref = getSharedPreferences("EmergencyContacts", Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("List", contactsAdapter.toString());
         editor.apply();
 
+    }
+    public  void updateList()
+    {
+        Person defaultNumber;
+//        defaultNumber=new Person("Women's Helpline Number ","09969777888");
+//        EmergencyContactsName.add(defaultNumber);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String List = sharedPref.getString("List", "");
+        if (!"".equals(List) && "" != List) {
+            contactsAdapter.clear();
+            String[] str = List.split(";");
+            for (String item : str) {
+                String[] name_and_num = item.split(",");
+                if (!name_and_num[0].equals(null))
+                    contactsAdapter.add(new Person(name_and_num[0], name_and_num[1]));
+            }
+        }
     }
 
 }
