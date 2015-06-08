@@ -104,15 +104,15 @@ public class Bluetooth implements Runnable {
     public void run() {
         // Moves the current Thread into the background
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-      //  while(true) {
-            connectAsClient();
-            boolean trigger = runBT();
-            if(trigger) {
-                MessageSender sms = new MessageSender();
-                sms.sendSMS();
-                Log.d("StandbyService", "Message sent");
-            }
-      //  }
+
+        connectAsClient();
+        boolean trigger = runBT();
+        if(trigger) {
+            MessageSender sms = new MessageSender();
+           // sms.sendSMS();
+            Log.d("Bluetooth", "Message sent");
+        }
+
     }
 
 }
