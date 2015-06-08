@@ -1,5 +1,7 @@
 package com.mycompany.peppershield;
 
+
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -8,20 +10,26 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.provider.ContactsContract.Contacts;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
-
-
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
+
+
+
 public class EmergencyContacts extends Activity {
+    SparseBooleanArray mCheckStates ;
+    ListView listView;
 
 
     ArrayList<Person> EmergencyContactsName;
@@ -44,7 +52,6 @@ public class EmergencyContacts extends Activity {
     CustomAdapter_emergency_contacts contactsAdapter = null;
 
 
-    static ArrayList<String> resultRow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +62,14 @@ public class EmergencyContacts extends Activity {
         EmergencyContactsName = new ArrayList<>();
 
         contactsAdapter = new CustomAdapter_emergency_contacts();
-        ListView ListView = (ListView) findViewById(R.id.ListView);
-        ListView.setAdapter(contactsAdapter);
+        listView = (ListView) findViewById(R.id.ListView);
+        Person defaultNumber;
+        defaultNumber=new Person("Women's Helpline Number ","09969777888");
+        EmergencyContactsName.add(defaultNumber);
+
+
+        Button delete=(Button)findViewById(R.id.delete);
+        listView.setAdapter(contactsAdapter);
 
         SharedPreferences sharedPref = getSharedPreferences("EmergencyContacts", Context.MODE_PRIVATE);
         String List = sharedPref.getString("List", "");
@@ -65,33 +78,80 @@ public class EmergencyContacts extends Activity {
             String[] str = List.split(";");
             for (String item : str) {
                 String[] name_and_num = item.split(",");
-                contactsAdapter.add(new Person(name_and_num[0], name_and_num[1]));
+                if (!name_and_num[0].equals(null))
+                    contactsAdapter.add(new Person(name_and_num[0], name_and_num[1]));
             }
         }
 
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int count=listView.getCount();
+                for (int i = count-1; i >= 0; i--) {
 
+
+                    View v2 = listView.getChildAt(i);
+                    CheckBox tx = (CheckBox) v2.findViewById(R.id.checkBoxContacts);
+                    Log.i("CheckBox" + i, tx.isChecked() + "");
+                    if(i==0)
+                    {
+                        if (tx.isChecked())
+                            Toast.makeText(EmergencyContacts.this,"You cannot delete Women's Helpline Number",Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                    if (tx.isChecked())
+                    {
+                        if (tx.isChecked())
+                        {
+                            contactsAdapter.remove(contactsAdapter.getItem(i));
+                        }
+                    }
+
+
+                }}
+
+                contactsAdapter.notifyDataSetChanged();
+                for (int i=0;i<listView.getCount();i++)
+                {
+                    View v2 = listView.getChildAt(i);
+                    CheckBox tx = (CheckBox) v2.findViewById(R.id.checkBoxContacts);
+                    tx.setChecked(false);
+                }
+            }
+        });
     }
+
+
 
 
     class CustomAdapter_emergency_contacts extends ArrayAdapter<Person> {
         CustomAdapter_emergency_contacts() {
 
             super(EmergencyContacts.this, android.R.layout.simple_list_item_1, EmergencyContactsName);
+            mCheckStates=new SparseBooleanArray();
         }
 
         public View getView(int position, View convertView, ViewGroup parent) {
             ViewHolder holder;
             if (convertView == null) {
                 LayoutInflater inflater = getLayoutInflater();
-                convertView = inflater.inflate(R.layout.custom_row_emergency_contacts, null);
+                convertView = inflater.inflate(R.layout.custom_rom_emergency_contacts, null);
                 holder = new ViewHolder(convertView);
                 convertView.setTag(holder);
+
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
             holder.populateFrom(EmergencyContactsName.get(position));
             return (convertView);
         }
+
+//        public void onItemClickListener()
+//        {
+//
+//
+//        }
 
         @Override
         public String toString() {
@@ -123,11 +183,22 @@ public class EmergencyContacts extends Activity {
 
     public static final int CONTACT_PICKER_RESULT = 1001;
 
-    public void doLaunchContactPicker(View view) {
-        Intent contactPickerIntent = new Intent(Intent.ACTION_PICK,
-                Contacts.CONTENT_URI);
-        startActivityForResult(contactPickerIntent, CONTACT_PICKER_RESULT);
+    public void doLaunchContactPicker(View view)
+    {
+
+    if (EmergencyContactsName.size()<=6)
+        {
+
+            Intent contactPickerIntent = new Intent(Intent.ACTION_PICK,
+                    ContactsContract.Contacts.CONTENT_URI);
+            startActivityForResult(contactPickerIntent, CONTACT_PICKER_RESULT);
+        }
+    else
+        {
+            Toast.makeText(EmergencyContacts.this,"Maximum contacts are 7",Toast.LENGTH_SHORT).show();
+        }
     }
+
 
     @Override
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
@@ -145,7 +216,7 @@ public class EmergencyContacts extends Activity {
                     Uri contactData = data.getData();
                     Cursor c = getContentResolver().query(contactData, null, null, null, null);
                     if (c.moveToFirst()) {
-                        name = c.getString(c.getColumnIndex(Contacts.DISPLAY_NAME));
+                        name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                         String contactId = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
                         String hasPhone = c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
 
