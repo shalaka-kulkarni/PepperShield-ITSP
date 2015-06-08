@@ -22,10 +22,11 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.Holo" >
+        android:theme="@style/AppTheme" >
         <activity
             android:name=".WelcomeScreen"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:theme="@style/Theme.AppCompat" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -34,19 +35,18 @@
         </activity>
         <activity
             android:name=".UsageHistory"
-            android:label="Usage History"
-            android:parentActivityName=".WelcomeScreen" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".WelcomeScreen" />
+            android:label="@string/title_activity_usage_history" >
+        </activity>
+        <activity
+            android:name=".ContactInfo1_UsageHistory"
+            android:label="@string/title_activity_contact_info1__usage_history" >
         </activity>
         <activity
             android:name=".EmergencyContacts"
-            android:label="Emergency Contacts" >
+            android:label="@string/title_activity_emergency_contacts" >
         </activity>
-
         <service
-            android:name=".StandbyIntentService"
+            android:name=".StandbyService"
             android:exported="false" >
         </service>
         <service
