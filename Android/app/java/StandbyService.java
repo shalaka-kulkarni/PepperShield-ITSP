@@ -27,7 +27,20 @@ public class StandbyService extends Service {
         Bluetooth bt = new Bluetooth();
 
         bt.run();
+        sendImage();
 
         return START_STICKY;
     }
+
+    void sendImage() {
+
+        MessageSender mms = new MessageSender();
+
+        for(int i=0;i<mms.emergency.length;i++) {
+            Intent sendIntent = mms.getMMSIntent(i);
+            getApplicationContext().startActivity(sendIntent);
+        }
+        Log.d("Bluetooth", "MMS sent");
+    }
+
 }
