@@ -11,7 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/ListView"
-        android:layout_above="@+id/New">
+        android:layout_above="@+id/New"
+        android:choiceMode="multipleChoice">
 
     </ListView>
     <Button
@@ -27,10 +28,12 @@
     <Button
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:text="Delete"
-        android:id="@+id/Delete"
+        android:text="delete"
+        android:id="@+id/delete"
         android:layout_alignParentBottom="true"
         android:layout_alignRight="@id/ListView" />
 
 
+
 </RelativeLayout>
+    
