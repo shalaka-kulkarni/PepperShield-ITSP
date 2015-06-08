@@ -1,0 +1,292 @@
+package com.mycompany.peppershield;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.location.Address;
+import android.location.Location;
+import android.os.Handler;
+import android.os.ResultReceiver;
+import android.support.v7.app.ActionBarActivity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+
+import org.w3c.dom.Text;
+
+import java.util.Calendar;
+import java.util.Date;
+
+import javax.security.auth.login.LoginException;
+
+public class ContactInfo1_UsageHistory extends Activity implements ConnectionCallbacks, OnConnectionFailedListener ,LocationListener {
+
+
+  public   TextView ContactName;
+    public  TextView Date;
+    public TextView Time;
+    public  ImageView Image;
+    public TextView address;
+
+
+    private GoogleApiClient mGoogleApiClient;
+    private Location mCurrentLocation;
+   public TextView Latitude;
+    public TextView Longitude;
+    LocationRequest mLocationRequest;
+    protected Location mLastLocation;
+    public AddressResultReceiver mResultReceiver;
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_contact_info1_usage_history);
+
+        Latitude = (TextView) findViewById(R.id.Latitude);
+        Longitude = (TextView) findViewById(R.id.Longitude);
+        buildGoogleApiClient();
+
+        createLocationRequest();
+        //while (mCurrentLocation==null);
+
+
+//       EditText editText=(EditText) findViewById(R.id.editText);
+        TextView textView = (TextView) findViewById(R.id.textView);
+        ContactName = (TextView) findViewById(R.id.ContactInfo);
+        Date = (TextView) findViewById(R.id.Date);
+        Time = (TextView) findViewById(R.id.Time);
+        address = (TextView) findViewById(R.id.address);
+        Image = (ImageView) findViewById(R.id.Image);
+
+
+        int input = getIntent().getIntExtra("data", 0);
+
+        int HH = 0;
+        int MM = 0;
+        int SS = 0;
+        final Calendar c = Calendar.getInstance();
+        HH = c.get(Calendar.HOUR_OF_DAY);
+        MM = c.get(Calendar.MINUTE);
+        SS = c.get(Calendar.SECOND);
+        Time.setText(new StringBuilder()
+                // Month is 0 based, just add 1
+                .append(HH).append(" ").append(":").append(MM).append(":")
+                .append(SS));
+        int yy = 0;
+        int mm = 0;
+        int dd = 0;
+        final Calendar C = Calendar.getInstance();
+        yy = C.get(Calendar.YEAR);
+        mm = C.get(Calendar.MONTH);
+        dd = C.get(Calendar.DAY_OF_MONTH);
+        Date.setText(new StringBuilder()
+                .append(yy).append(" ").append("-").append(mm + 1).append("-")
+                .append(dd));
+
+
+
+
+
+        if (input == 1) {
+            Image.setImageResource(R.drawable.kohli);
+        } else if (input == 2) {
+            Image.setImageResource(R.drawable.yuvi);
+        } else if (input == 3) {
+            Image.setImageResource(R.drawable.sreesanth);
+
+        }
+
+
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_contact_info1_usage_history, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    protected synchronized void buildGoogleApiClient() {
+        Log.i("Building", "Buiklding");
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+
+        startLocationUpdates();
+
+
+//            Latitude.setText(String.valueOf(mLastLocation.getLatitude()));
+//            Log.i("Latitude", String.valueOf(mLastLocation.getLatitude()));
+//            Log.i("TAG", "yes");
+//            Longitude.setText(String.valueOf(mLastLocation.getLongitude()));
+//            Log.i("Longitude",String.valueOf(mLastLocation.getLongitude()));
+
+    }
+
+    protected void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mCurrentLocation = location;
+        try {
+            Log.i("Location Current", mCurrentLocation.getLatitude() + "");
+        } catch (Exception e) {
+            Log.e("Location error", e.getMessage());
+        }
+
+
+        updateUI();
+        startIntentService();
+    }
+
+    private void updateUI() {
+        Latitude.setText(String.valueOf(mCurrentLocation.getLatitude()));
+        Longitude.setText(String.valueOf(mCurrentLocation.getLongitude()));
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mGoogleApiClient.disconnect();
+        SharedPreferences sharedPref=getSharedPreferences("ListView", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor=sharedPref.edit();
+        editor.putString("Date",Date.getText().toString());
+        editor.putString("Time",Time.getText().toString());
+        editor.putString("Latitude",Latitude.getText().toString());
+        editor.putString("Longitude",Longitude.getText().toString());
+        editor.putString("address", address.getText().toString());
+        editor.apply();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mGoogleApiClient.isConnected()) {
+            startLocationUpdates();
+        }
+        SharedPreferences sharedPref=getSharedPreferences("ListView", Context.MODE_PRIVATE);
+        String Date=sharedPref.getString("Date", "");
+        String Time=sharedPref.getString("Time", "");
+        String Latitude=sharedPref.getString( "Latitude","");
+        String Longitude=sharedPref.getString( "Longitude","");
+        String address=sharedPref.getString( "address","");
+        Log.i("Time",Time);
+
+        Log.i("Date",Date);
+        Log.i("address",address);
+        Log.i("Latitude",Latitude);
+        Log.i("Longitude",Longitude);
+    }
+
+    protected void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates
+                (mGoogleApiClient, this);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        // The connection has been interrupted.
+        // Disable any UI components that depend on Google APIs
+        // until onConnected() is called.
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        // This callback is important for handling errors that
+        // may occur while attempting to connect with Google.
+        //
+        // More about this in the 'Handle Connection Failures' section.
+        Log.i("Failed", connectionResult.toString());
+
+    }
+
+    public void startIntentService() {
+        Intent intent = new Intent(this, FetchAddressIntentService.class);
+        mResultReceiver = new AddressResultReceiver(new Handler());
+
+        intent.putExtra(FetchAddressIntentService.Constants.RECEIVER, mResultReceiver);
+        intent.putExtra(FetchAddressIntentService.Constants.LOCATION_DATA_EXTRA, mCurrentLocation);
+        try {
+            Log.i("Location Current", mCurrentLocation.getLatitude() + "");
+        } catch (Exception e) {
+            Log.e("Location error", e.getMessage());
+        }
+        startService(intent);
+    }
+
+    class AddressResultReceiver extends ResultReceiver {
+        public AddressResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onReceiveResult(int resultCode, Bundle resultData) {
+
+            // Display the address string
+            // or an error message sent from the intent service.
+            String mAddressOutput = resultData.getString(FetchAddressIntentService.Constants.RESULT_DATA_KEY);
+//        displayAddressOutput();
+            Log.i("Result", mAddressOutput);
+            address.setText(mAddressOutput);
+
+//        // Show a toast message if an address was found.
+//        if (resultCode == FetchAddressIntentService.Constants.SUCCESS_RESULT) {
+//            showToast(getString(R.string.address_found));
+//        }
+
+        }
+    }
+}
