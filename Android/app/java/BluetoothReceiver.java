@@ -2,6 +2,7 @@ package com.mycompany.debugtrial2;
 
 import android.bluetooth.*;
 import android.graphics.*;
+import android.os.Environment;
 import android.util.Log;
 
 import java.io.*;
@@ -17,21 +18,26 @@ public class BluetoothReceiver extends Thread {
 
     static int ctr;
 
+    public BluetoothReceiver() {
+        ctr = 0;
+    }
+
     public BluetoothReceiver(BluetoothSocket mSocket) {
         socket = mSocket;
         try {
             in = socket.getInputStream();
             Log.d("BluetoothReceiver","Input stream received");
         }
-        catch (IOException e) {
+        catch (Exception e) {
+            e.getStackTrace();
             Log.d("BluetoothReceiver", "Input stream not received");
         }
     }
     int read() {
 
         int size=640*480*3 + 2; //640x480 pix screen resolution, with 1 pixel compressed to 3 bytes
-        int noOfBytes = 0;
-       /* incomingArray = new byte[size];
+/*        int noOfBytes = 0;
+        incomingArray = new byte[size];
 
         try {
             noOfBytes = in.read(incomingArray);
@@ -41,7 +47,7 @@ public class BluetoothReceiver extends Thread {
             Log.d("BluetoothReceiver", "Data not received");
         }
 
-        return noOfBytes; */
+        return noOfBytes;*/
 
         byte[] buffer = new byte[size];
         int bytesRead = -2;
@@ -52,7 +58,9 @@ public class BluetoothReceiver extends Thread {
             }
             Log.d("BluetoothReceiver", "Data received!");
         }
-        catch(IOException e) { }
+        catch(IOException e) {
+            Log.d("BluetoothReceiver", "Data not received");
+        }
 
         incomingArray = output.toByteArray();
 
@@ -72,12 +80,15 @@ public class BluetoothReceiver extends Thread {
 
         ctr = getCounter();
 
-        String filepath = "/sdcard/bluetooth/image"+ctr+".jpeg";
-        ctr++;
+        //String filepath = "/sdcard/bluetooth/image"+ctr+".jpeg";
 
         try {
-            FileOutputStream fout = new FileOutputStream(filepath);
-//            bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fout);
+            File myDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "PepperShield");
+            myDir.mkdirs();
+            File file = new File(myDir,"image"+ctr+".jpeg");
+            ctr++;
+            FileOutputStream fout = new FileOutputStream(file);
+            //bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fout);
             fout.flush();
             fout.close();
             Log.d("BluetoothReceiver", "Image saved!");
@@ -93,7 +104,10 @@ public class BluetoothReceiver extends Thread {
         while(true) {
 
             try {
-                FileInputStream file = new FileInputStream("/sdcard/bluetooth/image"+count+".jpeg");
+                File myDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "PepperShield");
+                myDir.mkdirs();
+                File file = new File(myDir,"image"+count+".jpeg");
+                FileInputStream fileInputStream = new FileInputStream(file);
                 count ++;
             }
             catch(FileNotFoundException f) {
