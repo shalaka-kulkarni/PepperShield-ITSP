@@ -51,8 +51,9 @@ public class Bluetooth implements Runnable {
         if (pairedDevices.size() > 0) {
 
             for (BluetoothDevice device : pairedDevices) {
-                if(device.getName().equals("HC-05")) {
+                if(device.getName().contains("HC-05")) {
                     mDevice = device;
+                    break;
                 }
             }
         }
@@ -62,13 +63,11 @@ public class Bluetooth implements Runnable {
             socket = mDevice.createRfcommSocketToServiceRecord(mDeviceUUID);
             Log.d("Bluetooth","Device found!");
         }
-        catch (IOException e) {
+        catch (Exception e) {
             Log.d("Bluetooth","Device not found.");
         }
 
         try {
-            if(mBluetoothAdapter.isDiscovering())
-                mBluetoothAdapter.cancelDiscovery();
             socket.connect();
             Log.d("Bluetooth", "Bluetooth connection successful!");
         } catch (IOException connectException) {
@@ -109,7 +108,7 @@ public class Bluetooth implements Runnable {
         boolean trigger = runBT();
         if(trigger) {
             MessageSender sms = new MessageSender();
-            sms.sendSMS();
+           // sms.sendSMS();
             Log.d("Bluetooth", "Message sent");
         }
 
