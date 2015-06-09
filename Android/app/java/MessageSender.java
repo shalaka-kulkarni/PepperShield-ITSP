@@ -2,6 +2,7 @@ package com.mycompany.debugtrial2;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 import android.telephony.SmsManager;
 
 import java.io.File;
@@ -11,11 +12,12 @@ import java.io.File;
  */
 public class MessageSender {
 
-    String contacts[][];
+    String contacts[][] = {/*{"Aai", "+91 9619745270"},*/ {"Shalaka", "+91 7506438504"}};
+
     MessageSender()
     {
         EmergencyContacts init=new EmergencyContacts();
-       init.updateList();
+        init.updateList();
         for (int i=0;i<init.EmergencyContactsName.size();i++)
         {   EmergencyContacts.Person p=init.EmergencyContactsName.get(i);
             contacts[i][0]=p.name;
@@ -35,7 +37,7 @@ public class MessageSender {
 
     }
 
-    Intent getMMSIntent(int i) {
+    Intent getMMSIntent(int i, int ctr) {
 
 
         Intent sendIntent = new Intent(Intent.ACTION_SEND);
@@ -45,6 +47,7 @@ public class MessageSender {
         for (int i = 0; i < resInfo.size(); i++) {
             ResolveInfo ri = resInfo.get(i);
             String packageName = ri.activityInfo.packageName;
+
             if(packageName.contains("Messaging")) {
                 Log.d("TAG", packageName + " : " + ri.activityInfo.name);
                 sendIntent.setComponent(new ComponentName(packageName, ri.activityInfo.name));
@@ -52,7 +55,11 @@ public class MessageSender {
         }*/
         String message = "Testing MMS sending";
 
-        Uri uri = Uri.fromFile(new File("/sdcard/bluetooth/test.jpg"));
+        File myDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "PepperShield");
+        myDir.mkdirs();
+        File file = new File(myDir,"image"+ctr+".jpeg");
+
+        Uri uri = Uri.fromFile(file);
 
         sendIntent.putExtra("address", contacts[i][1]);
         sendIntent.putExtra("sms_body", message);
