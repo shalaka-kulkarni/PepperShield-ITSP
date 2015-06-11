@@ -13,9 +13,20 @@ const int siodPin = A4;
 const int rx = 0; //Receives from BT
 const int tx = 1; //Transmits to BT
 
-const int triggerPin = 12;
-
 const int ledPin = 13;
+  volatile byte lower = PINC;
+  volatile byte upper = PIND;
+  
+void sendData()
+{
+  // Part of code where you want to go fast Copy the statement below and paste where yu want the code to start
+  //attachInterrupt(0, sendData, CHANGE);
+  lower = lower & 0b0001111;
+  upper = upper & 0b11110000;
+  byte currentByte = upper | lower;
+  Serial.write(currentByte);
+  // Adding serial steps makes it slow
+}
 
 int prevPCLK, currPCLK;
 
@@ -29,12 +40,10 @@ void setup() {
   pinMode(pclkPin, INPUT);
   pinMode(hrefPin, INPUT);
   pinMode(vsyncPin, INPUT);
-  pinMode(triggerPin, INPUT);
   pinMode(ledPin, OUTPUT);
-  
   prevPCLK = digitalRead(pclkPin);
   analogWrite(xclkPin, 128);
-  
+  attachInterrupt(0, sendData, RISING);
 
 }
 
@@ -48,26 +57,14 @@ void loop() {
        while(digitalRead(hrefPin == HIGH))  {
         
        currPCLK = digitalRead(pclkPin);
-       if(prevPCLK == LOW && currPCLK == HIGH)  {
-         
-         byte lower = PINC;
-         byte upper = PIND;
-         lower = lower & 0b001111;
-         upper = upper & 0b11110000;
-         
-         byte currentByte = upper | lower;
-         
-         
-         Serial.write(currentByte);
-         Serial.println(currentByte);
-       }
+       
       }
     digitalWrite(ledPin, LOW);
 
     delay(1);//crude form of button debouncing
   }
-   
-else if(currentState == LOW && lastState == HIGH){
+  }
+   else if(currentState == LOW && lastState == HIGH){
     Serial.println("released");
     delay(1);//crude form of button debouncing
   }
