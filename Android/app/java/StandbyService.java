@@ -33,10 +33,10 @@ public class StandbyService extends Service {
             bt.connectAsClient();
             boolean trigger = bt.runBT();
             if (trigger) {
-                MessageSender sms = new MessageSender();
-                // sms.sendSMS();
-                Log.d("Bluetooth", "Message sent");
-                //sendImage();
+                /*MessageSender sms = new MessageSender();
+                sms.sendSMS();
+                Log.d("Bluetooth", "Message sent");*/
+                sendImage();
                 Log.d("Bluetooth", "MMS initiated");
                 flag = true;
             }
