@@ -12,7 +12,7 @@ import java.io.File;
  */
 public class MessageSender {
 
-    String contacts[][] = {/*{"Aai", "+91 9619745270"},*/ {"Shalaka", "+91 7506438504"}};
+   // String contacts[][] = {/*{"Aai", "+91 9619745270"},*/ {"Shalaka", "+91 7506438504"}};
 
     MessageSender()
     {
