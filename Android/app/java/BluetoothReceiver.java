@@ -6,6 +6,7 @@ import android.os.Environment;
 import android.util.Log;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 
 /**
  * Created by Shalaka on 5/25/2015.
@@ -35,26 +36,38 @@ public class BluetoothReceiver extends Thread {
     }
     int read() {
 
-        int size=640*480*3 + 2; //640x480 pix screen resolution, with 1 pixel compressed to 3 bytes
-/*        int noOfBytes = 0;
+        int size=640*480*3; //640x480 pix screen resolution, with 1 pixel compressed to 3 bytes
+/*
+        int noOfBytes = 0;
         incomingArray = new byte[size];
 
         try {
             noOfBytes = in.read(incomingArray);
             Log.d("BluetoothReceiver", "Data received!");
-            Log.d("BluetoothReceiver", "Bytes read = "+noOfBytes);
         } catch (IOException e) {
             Log.d("BluetoothReceiver", "Data not received");
         }
+        finally {
+            Log.d("BluetoothReceiver", "Bytes read = "+noOfBytes);
+        }
 
-        return noOfBytes;*/
-
+        return noOfBytes;
+*/
+        boolean smsSent = false;
         byte[] buffer = new byte[size];
-        int bytesRead = -2;
+        int bytesRead = 0;
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         try {
-            while ((bytesRead = in.read(buffer)) != -1) {
-                output.write(buffer, 0, bytesRead);
+            int currentBytesRead;
+            while ((currentBytesRead = in.read(buffer)) != -1 && bytesRead <= size+128) {
+                if(!smsSent) {
+                    MessageSender sms = new MessageSender();
+                  //  sms.sendSMS();
+                    Log.d("Bluetooth", "Message sent");
+                    smsSent = true;
+                }
+                bytesRead += currentBytesRead;
+                output.write(buffer, 0, currentBytesRead);
             }
             Log.d("BluetoothReceiver", "Data received!");
         }
@@ -62,25 +75,55 @@ public class BluetoothReceiver extends Thread {
             Log.d("BluetoothReceiver", "Data not received");
         }
 
-        incomingArray = output.toByteArray();
+        incomingArray = new byte[size];
+            //incomingArray = output.toByteArray();
+            byte[] temp = output.toByteArray();
+        try {
+            for (int i = 0; i < incomingArray.length; i++) {
+                incomingArray[i] = (byte) (temp[i] - 127 - 1);
+            }
+        }
+        catch (ArrayIndexOutOfBoundsException a) { }
 
         Log.d("BluetoothReceiver", "Bytes read = "+bytesRead);
         Log.d("BluetoothReceiver", "incomingArray.length = "+incomingArray.length);
 
+        /*if(bytesRead > 0)
+            makeFile(output);
+*/
         return bytesRead;
+    }
+
+    void makeFile(ByteArrayOutputStream baos) {
+
+
+        try {
+            ctr = getCounter();
+            File myDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "PepperShield");
+            myDir.mkdirs();
+            File file = new File(myDir,"image"+ctr+".jpg");
+            ctr++;
+            FileOutputStream fout = new FileOutputStream(file);
+            baos.writeTo(fout);
+            fout.close();
+            Log.d("BluetoothReceiver", "File saved!");
+        } catch(IOException ioe) {
+            // Handle exception here
+            ioe.printStackTrace();
+            Log.d("BluetoothReceiver", "File not saved");
+        }
     }
 
     void getImage() {
 
-        Bitmap bitmapImage = BitmapFactory.decodeByteArray(incomingArray, 0, incomingArray.length);
+       // Bitmap bitmapImage = BitmapFactory.decodeByteArray(incomingArray, 0, incomingArray.length);
+        Bitmap bitmapImage = Bitmap.createBitmap(640, 480, Bitmap.Config.RGB_565);
+        bitmapImage.copyPixelsFromBuffer(ByteBuffer.wrap(incomingArray));
         if(bitmapImage==null)
             Log.d("BluetoothReceiver","Bitmap is null");
         else
-            Log.d("BluetoothReceiver","Bitmap is not null");
-
+            Log.d("BluetoothReceiver","Bitmap created!");
         ctr = getCounter();
-
-        //String filepath = "/sdcard/bluetooth/image"+ctr+".jpeg";
 
         try {
             File myDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "PepperShield");
@@ -88,7 +131,7 @@ public class BluetoothReceiver extends Thread {
             File file = new File(myDir,"image"+ctr+".jpeg");
             ctr++;
             FileOutputStream fout = new FileOutputStream(file);
-            //bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fout);
+            bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fout);
             fout.flush();
             fout.close();
             Log.d("BluetoothReceiver", "Image saved!");
@@ -113,6 +156,12 @@ public class BluetoothReceiver extends Thread {
             catch(FileNotFoundException f) {
                 return count;
             }
+        }
+    }
+
+    void printBytes() {
+        for(int i=0;i<incomingArray.length;i++) {
+            Log.d("Byte array data", " "+incomingArray[i]);
         }
     }
 }
