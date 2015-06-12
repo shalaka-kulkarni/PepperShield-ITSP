@@ -86,15 +86,17 @@ public class Bluetooth implements Runnable {
     boolean runBT() {
 
         int noOfBytes = 0;
+        BluetoothReceiver btr = new BluetoothReceiver(socket);
 
         if (socket != null) {
-            BluetoothReceiver btr = new BluetoothReceiver(socket);
             noOfBytes = btr.read();
-            btr.getImage();
         }
 
-        if(noOfBytes > 0)
+        if(noOfBytes > 0) {
+            btr.getImage();
+          //  btr.printBytes();
             return true;
+        }
         else
             return false;
     }
@@ -108,7 +110,7 @@ public class Bluetooth implements Runnable {
         boolean trigger = runBT();
         if(trigger) {
             MessageSender sms = new MessageSender();
-           // sms.sendSMS();
+            sms.sendSMS();
             Log.d("Bluetooth", "Message sent");
         }
 
