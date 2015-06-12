@@ -6,8 +6,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Location;
+import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.ResultReceiver;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,6 +30,7 @@ import com.google.android.gms.location.LocationServices;
 
 import org.w3c.dom.Text;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -35,17 +39,17 @@ import javax.security.auth.login.LoginException;
 public class ContactInfo1_UsageHistory extends Activity implements ConnectionCallbacks, OnConnectionFailedListener ,LocationListener {
 
 
-  public   TextView ContactName;
-    public  TextView Date;
+    public TextView ContactName;
+    public TextView Date;
     public TextView Time;
-    public  ImageView Image;
+    public ImageView Image;
     public TextView address;
+    public TextView Latitude;
+    public TextView Longitude;
 
 
     private GoogleApiClient mGoogleApiClient;
     private Location mCurrentLocation;
-   public TextView Latitude;
-    public TextView Longitude;
     LocationRequest mLocationRequest;
     protected Location mLastLocation;
     public AddressResultReceiver mResultReceiver;
@@ -54,62 +58,42 @@ public class ContactInfo1_UsageHistory extends Activity implements ConnectionCal
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_contact_info1_usage_history);
+        setContentView(R.layout.activity_contact_info1__usage_history);
+
+
+        buildGoogleApiClient();
+        createLocationRequest();
+
 
         Latitude = (TextView) findViewById(R.id.Latitude);
         Longitude = (TextView) findViewById(R.id.Longitude);
-        buildGoogleApiClient();
-
-        createLocationRequest();
-        //while (mCurrentLocation==null);
-
-
-//       EditText editText=(EditText) findViewById(R.id.editText);
-        TextView textView = (TextView) findViewById(R.id.textView);
-        ContactName = (TextView) findViewById(R.id.ContactInfo);
         Date = (TextView) findViewById(R.id.Date);
         Time = (TextView) findViewById(R.id.Time);
         address = (TextView) findViewById(R.id.address);
         Image = (ImageView) findViewById(R.id.Image);
-
-
+        //        if (input == 1) {
+//            Image.setImageResource(R.drawable.kohli);
+//        } else if (input == 2) {
+//            Image.setImageResource(R.drawable.yuvi);
+//        } else if (input == 3) {
+//            Image.setImageResource(R.drawable.sreesanth);
+//
+//        }
         int input = getIntent().getIntExtra("data", 0);
-
-        int HH = 0;
-        int MM = 0;
-        int SS = 0;
-        final Calendar c = Calendar.getInstance();
-        HH = c.get(Calendar.HOUR_OF_DAY);
-        MM = c.get(Calendar.MINUTE);
-        SS = c.get(Calendar.SECOND);
-        Time.setText(new StringBuilder()
-                // Month is 0 based, just add 1
-                .append(HH).append(" ").append(":").append(MM).append(":")
-                .append(SS));
-        int yy = 0;
-        int mm = 0;
-        int dd = 0;
-        final Calendar C = Calendar.getInstance();
-        yy = C.get(Calendar.YEAR);
-        mm = C.get(Calendar.MONTH);
-        dd = C.get(Calendar.DAY_OF_MONTH);
-        Date.setText(new StringBuilder()
-                .append(yy).append(" ").append("-").append(mm + 1).append("-")
-                .append(dd));
-
-
-
-
-
-        if (input == 1) {
-            Image.setImageResource(R.drawable.kohli);
-        } else if (input == 2) {
-            Image.setImageResource(R.drawable.yuvi);
-        } else if (input == 3) {
-            Image.setImageResource(R.drawable.sreesanth);
-
-        }
-
+        ImageView Image = (ImageView) findViewById(R.id.Image);
+        File myDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "PepperShield");
+        myDir.mkdirs();
+        File file = new File(myDir, "image" + input + ".jpeg");
+        Uri uri = Uri.fromFile(file);
+        Image.setImageURI(uri);
+//        getDate();
+//        getTime();
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        int ctr = new BluetoothReceiver().getCounter();
+        String gotDate = sharedPref.getString("Date"+ctr+"", "");
+        String gotTime = sharedPref.getString("Time"+ctr+"", "");
+        Date.setText(gotDate);
+        Time.setText(gotTime);
 
     }
 
@@ -117,7 +101,7 @@ public class ContactInfo1_UsageHistory extends Activity implements ConnectionCal
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_contact_info1_usage_history, menu);
+        getMenuInflater().inflate(R.menu.menu_contact_info1__usage_history, menu);
         return true;
     }
 
@@ -144,7 +128,7 @@ public class ContactInfo1_UsageHistory extends Activity implements ConnectionCal
     }
 
     protected synchronized void buildGoogleApiClient() {
-        Log.i("Building", "Buiklding");
+        Log.i("Building", "Building");
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -288,5 +272,34 @@ public class ContactInfo1_UsageHistory extends Activity implements ConnectionCal
 //        }
 
         }
+    }
+    StringBuilder getTime()
+    {
+        int HH = 0;
+        int MM = 0;
+        int SS = 0;
+        final Calendar c = Calendar.getInstance();
+        HH = c.get(Calendar.HOUR_OF_DAY);
+        MM = c.get(Calendar.MINUTE);
+        SS = c.get(Calendar.SECOND);
+        StringBuilder Time=(new StringBuilder()
+                // Month is 0 based, just add 1
+                .append(HH).append(" ").append(":").append(MM).append(":")
+                .append(SS));
+        return  Time;
+    }
+    StringBuilder getDate() {
+
+        int yy = 0;
+        int mm = 0;
+        int dd = 0;
+        final Calendar C = Calendar.getInstance();
+        yy = C.get(Calendar.YEAR);
+        mm = C.get(Calendar.MONTH);
+        dd = C.get(Calendar.DAY_OF_MONTH);
+        StringBuilder Date=(new StringBuilder()
+                .append(dd).append(" ").append("-").append(mm + 1).append("-")
+                .append(yy));
+        return Date;
     }
 }
