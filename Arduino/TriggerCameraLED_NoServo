@@ -1,4 +1,3 @@
-const int buttonPin = 12;
 boolean currentState = LOW;//stroage for current button state
 boolean lastState = LOW;//storage for last button state
 
@@ -24,7 +23,6 @@ void setup() {
   for(int i=0;i<8;i++)  {
     pinMode(dataPin[i], INPUT);
   }
-  pinMode(buttonPin, INPUT);
   pinMode(xclkPin, OUTPUT);
   pinMode(pclkPin, INPUT);
   pinMode(hrefPin, INPUT);
@@ -39,36 +37,35 @@ void setup() {
 }
 
 void loop() {
-  currentState = digitalRead(buttonPin);
-   if (currentState == HIGH && lastState == LOW){//if button has just been pressed
+  currentState =PINB & 0b010000;
+   if(currentState == HIGH && lastState == LOW){//if button has just been pressed
        Serial.println("pressed");
-       while(digitalRead(vsyncPin) == LOW)  {
+       while(!(PIND & 0b00001000))  {
        
-       digitalWrite(ledPin, HIGH); 
-       while(digitalRead(hrefPin == HIGH))  {
+         PORTB = PORTB | B100000; 
+        while(PINB & 0b000001)  {
         
-       currPCLK = digitalRead(pclkPin);
-       if(prevPCLK == LOW && currPCLK == HIGH)  {
+        currPCLK = PIND & 0b00000100;
+        if(prevPCLK == LOW && currPCLK == HIGH)  {
+          
+          byte lower = PINC;
+          byte upper = PIND;
+          lower = lower & 0b001111;
+          upper = upper & 0b11110000;
          
-         byte lower = PINC;
-         byte upper = PIND;
-         lower = lower & 0b001111;
-         upper = upper & 0b11110000;
-         
-         byte currentByte = upper | lower;
+           byte currentByte = upper | lower;
          
          
-         Serial.write(currentByte);
-         Serial.println(currentByte);
-       }
-      }
-    digitalWrite(ledPin, LOW);
+           Serial.write(currentByte);
+           Serial.println(currentByte);
+         }
+        }
+      PORTB = PORTB & B011111;
 
-    delay(1);//crude form of button debouncing
-  }
-   
-else if(currentState == LOW && lastState == HIGH){
-    Serial.println("released");
+      delay(1);//crude form of button debouncing
+    }
+  } 
+  else if(currentState == LOW && lastState == HIGH){
     delay(1);//crude form of button debouncing
   }
   lastState = currentState;
