@@ -1,9 +1,5 @@
 package com.mycompany.peppershield;
-
-
-
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -247,8 +243,8 @@ public class EmergencyContacts extends Activity {
     public  void updateList()
     {
         Person defaultNumber;
-//        defaultNumber=new Person("Women's Helpline Number ","09969777888");
-//        EmergencyContactsName.add(defaultNumber);
+        defaultNumber=new Person("Women's Helpline Number ","09969777888");
+        EmergencyContactsName.add(defaultNumber);
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String List = sharedPref.getString("List", "");
         if (!"".equals(List) && "" != List) {
